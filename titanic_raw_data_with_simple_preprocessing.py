@@ -7,6 +7,8 @@ Original file is located at
     https://colab.research.google.com/drive/1yw-lgsUZiiXgzUtpy5avPJD2_fTzoEfJ
 """
 
+"""The code below is generated to fetch the neccessary data files from Kaggle"""
+
 from google.colab import files
 files.upload()
 
@@ -30,18 +32,15 @@ test_data = pd.read_csv('/content/titanic/test.csv')
 
 """A look at the data"""
 
-train_data.info()
-train_data.head(10)
+print(train_data.info())
+print(train_data.head(10))
 
-test_data.info()
-test_data.head()
+print(test_data.info())
+print(test_data.head())
 
 """Dealing with null (missing values) data in 'Age' and 'Fare' columns. The 'Cabin' column will be dealt with later.
 
----
-Fill in with mean values.
-
-"""
+Fill in with mean values."""
 
 train_data.Age.fillna(train_data.Age.mean(), inplace=True)
 test_data.Age.fillna(test_data.Age.mean(), inplace=True)
@@ -53,7 +52,7 @@ test_data.Fare.fillna(test_data.Fare.mean(), inplace=True)
 """Examine how the feature columns affect the outcome ('Survived' column). This is called "finding correlation"."""
 
 corr = train_data.loc[:, train_data.columns != 'PassengerId'].corr(numeric_only=True)
-corr # The corr() function computes the pairwise correlation of columns
+print(corr) # The corr() function computes the pairwise correlation of columns
      # Higher value means more significant relationships
 
 # Looking at a lot of numbers is confusing... so let's plot it.
@@ -77,19 +76,20 @@ for i in range(train_data.shape[1]):
 plt.show()
 
 # Okay so... it's not perfect. Error still exists (out-of-bounds) but the
-# important thing is we now have the values. From these values, let's get the
+# important thing is the code works, the plot has been drawn and
+# we now have the values. From these values, let's get the
 # top 3 features with the highest correlation with the 'Survived' outcome.
 print(train_data.loc[:, train_data.columns != 'PassengerId'].corr(numeric_only=True).nlargest(4, 'Survived').index)
 print(train_data.loc[:, train_data.columns != 'PassengerId'].corr(numeric_only=True).nlargest(4, 'Survived').values[:, 5])
 
 """So 'Fare', 'Parch' and 'SibSp' are the three most influential featues to the 'Survived' outcome.
 
+However, consider the sample submission (which only counts for gender), there may be more features 
+contributing to the outcome. If we use human logic: Young people may have a higher chance to survive 
+than old people; men may be more likely to survive than women...
 
-However, consider the sample submission (which only counts for gender), there may be more features contributing to the outcome. If we use human logic: Young people may have a higher chance to survive than old people; men may be more likely to survive than women...
-
-
-So for this case, let's factor Sex and Age into the game. One problem: The Sex column is in strings. Machines can't work with strings.
-
+So for this case, let's factor Sex and Age into the game. One problem: The Sex column is in strings. 
+Machines can't work with strings.
 
 More preprocessing will be needed.
 """
@@ -98,8 +98,6 @@ More preprocessing will be needed.
 # If the passenger's gender is male, then isMen is 1, else it's 0.
 train_data['isMale'] = np.where(train_data['Sex'] == 'male', 1, 0)
 test_data['isMale'] = np.where(test_data['Sex'] == 'male', 1, 0)
-
-train_data.head()
 
 base_features = ['Fare', 'Parch', 'SibSp', 'Age', 'isMale']
 
@@ -147,6 +145,7 @@ algorithms = ["Logistic Regression", "Decision Tree", "K Nearest Neighbors", "Ra
 cv_mean = pd.DataFrame(acc_score, index = algorithms)
 cv_mean.columns=["Accuracy"]
 cv_mean.sort_values(by="Accuracy",ascending=False)
+print(cv_mean)
 
 """With the result above, Random Forest grants us the highest accuracy. So we'll use it to fit our test data and make predictions."""
 
@@ -157,11 +156,7 @@ rdf.fit(X_train, y_train)
 
 predictions = rdf.predict(X_test)
 
-X_test.columns
-
-test_data.columns
-
 output = pd.DataFrame({'PassengerId': test_data.PassengerId, 'Survived': predictions})
 
-output
+print(output)
 
